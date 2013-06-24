@@ -1,0 +1,28 @@
+x
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="290dp"
+        android:layout_weight="0.47" />
+
+    <Button
+        android:id="@+id/btnCamera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="openCamera"
+        android:text="@string/camera" />
+
+    <Button
+        android:id="@+id/btnVancouver"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="findVancouver"
+        android:text="@string/vancouver" />
+
+</LinearLayout>
