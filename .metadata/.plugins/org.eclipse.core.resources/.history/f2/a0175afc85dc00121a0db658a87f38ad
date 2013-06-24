@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_alignRight="@+id/map"
         android:layout_alignTop="@+id/header"
-        android:onClick="openCamera"
-        android:text="Camera" />
+        android:text="Camera"
+        android:ocClick = "openCamera" />
 
 </RelativeLayout>

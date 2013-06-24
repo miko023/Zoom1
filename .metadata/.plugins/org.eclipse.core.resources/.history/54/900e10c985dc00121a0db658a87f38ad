@@ -22,13 +22,4 @@
        	android:layout_height="match_parent"
  		/>
 
-    <Button
-        android:id="@+id/btnCamera"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/map"
-        android:layout_alignTop="@+id/header"
-        android:onClick="openCamera"
-        android:text="Camera" />
-
 </RelativeLayout>

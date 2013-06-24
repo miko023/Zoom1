@@ -182,7 +182,8 @@ containing a value of this type.
         public static final int ic_launcher=0x7f020018;
     }
     public static final class id {
-        public static final int action_settings=0x7f050007;
+        public static final int action_settings=0x7f050008;
+        public static final int btnCamera=0x7f050007;
         public static final int header=0x7f050005;
         public static final int hybrid=0x7f050004;
         public static final int map=0x7f050006;
