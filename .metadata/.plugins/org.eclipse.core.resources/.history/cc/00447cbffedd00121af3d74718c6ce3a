@@ -1,0 +1,129 @@
+package com.example.zoom;
+
+import java.io.File;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.view.Menu;
+import android.view.View;
+import android.widget.TextView;
+
+public class MainActivity extends Activity {
+	
+	private final LatLng LOCATION_VANCOUVER = new LatLng (49.2505,-123);
+	private GoogleMap map;
+	private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE =  100;
+	private static final int MEDIA_TYPE_IMAGE = 1;
+	private int count = 0;
+	
+	private File photoFile;
+	
+	TextView textLat;
+	TextView textLong;
+	
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        map = ((MapFragment)getFragmentManager().findFragmentById(R.id.map)).getMap();
+        
+        photoFile = new File(Environment.getExternalStorageDirectory(), "zoomNIGGA");
+        if (photoFile.exists() == false){
+    		photoFile.mkdirs();
+    	}
+        
+        textLat = (TextView)findViewById(R.id.Latitude);
+        textLong = (TextView)findViewById(R.id.Longitude);
+        
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        LocationListener locationListener = new myLocationListener();
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+//        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        
+    }
+    
+    public void openCamera(View view){
+    	Intent cameraIntent = new Intent (MediaStore.ACTION_IMAGE_CAPTURE);
+    	
+    	cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+    	
+    	startActivityForResult(cameraIntent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+    	count++;
+    	}
+    	
+    	public void findVancouver(View view){
+    	Marker vMarker = map.addMarker(new MarkerOptions().position(LOCATION_VANCOUVER));
+//    	LatLngBounds.Builder b = new LatLngBounds.Builder();
+//    	b.include(LOCATION_VANCOUVER);
+//    	LatLngBounds bounds = b.build();
+    	CameraUpdate update = CameraUpdateFactory.newLatLng(LOCATION_VANCOUVER);
+//    	CameraUpdate update = CameraUpdateFactory.newLatLngBounds(bounds, 100, 100 , 0);
+    	map.animateCamera(update);
+
+    	}
+    	
+        @Override
+        public boolean onCreateOptionsMenu(Menu menu) {
+            // Inflate the menu; this adds items to the action bar if it is present.
+            getMenuInflater().inflate(R.menu.main, menu);
+            return true;
+        }
+        
+        
+    class myLocationListener implements LocationListener{
+
+		@Override
+		public void onLocationChanged(Location arg0) {
+			// TODO Auto-generated method stub
+			if(arg0 != null){
+				double lat = arg0.getLatitude();
+				double lng = arg0.getLongitude();
+				
+				textLat.setText(Double.toString(lat));
+				textLong.setText(Double.toString(lng));
+			}
+		}
+
+		@Override
+		public void onProviderDisabled(String arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onProviderEnabled(String arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
+			// TODO Auto-generated method stub
+			
+		}
+    	
+    }
+
+	
+    
+    
+}
+
+

@@ -1,0 +1,192 @@
+package com.example.zoom;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.media.ExifInterface;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.view.Menu;
+import android.view.View;
+import android.widget.TextView;
+
+public class MainActivity extends Activity {
+	
+	private final LatLng LOCATION_VANCOUVER = new LatLng (49.2505,-123);
+	private GoogleMap map;
+	private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE =  100;
+	private static final int MEDIA_TYPE_IMAGE = 1;
+ 	private Date date;
+ 	private double lat;
+ 	private double lng;
+
+	
+	private File photoFile;
+	
+	TextView textLat;
+	TextView textLong;
+	
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+   
+        map = ((MapFragment)getFragmentManager().findFragmentById(R.id.map)).getMap();
+        
+        photoFile = new File(Environment.getExternalStorageDirectory()+"/DCIM/Zoom");
+        if (photoFile.exists() == false){
+    		photoFile.mkdirs();
+    	}
+        
+        textLat = (TextView)findViewById(R.id.Latitude);
+        textLong = (TextView)findViewById(R.id.Longitude);
+
+        
+        
+//        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        
+    }
+    
+    public void openCamera(View view){
+    	
+    	date = new Date();
+   
+    	String realtime = date.toString();
+    	
+    	
+    	Intent cameraIntent = new Intent (MediaStore.ACTION_IMAGE_CAPTURE);
+    	cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File (Environment.getExternalStorageDirectory()+"/DCIM/Zoom",realtime + ".jpg")));
+    	
+        startActivityForResult(cameraIntent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        LocationListener locationListener = new myLocationListener();
+        
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        
+        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
+        
+        geoTag(realtime + ".jpg", lat, lng);
+    	}
+    	
+    public void geoTag(String filename, double latitude, double longitude){
+    	ExifInterface exif;
+    	float[] output = new float[2];
+    	try {
+    		//http://stackoverflow.com/questions/13587070/geotagging-photos-after-using-camera-intent
+				exif = new ExifInterface(filename);
+			 	int num1Lat = (int)Math.floor(latitude);
+		        int num2Lat = (int)Math.floor((latitude - num1Lat) * 60);
+		        double num3Lat = (latitude - ((double)num1Lat+((double)num2Lat/60))) * 3600000;
+
+		        int num1Lon = (int)Math.floor(longitude);
+		        int num2Lon = (int)Math.floor((longitude - num1Lon) * 60);
+		        double num3Lon = (longitude - ((double)num1Lon+((double)num2Lon/60))) * 3600000;
+		        
+		        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, num1Lat+"/1,"+num2Lat+"/1,"+num3Lat+"/1000");
+		        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, num1Lon+"/1,"+num2Lon+"/1,"+num3Lon+"/1000");
+		        
+		        if (latitude > 0) {
+		            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "N"); 
+		        } else {
+		            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "S");
+		        }
+
+		        if (longitude > 0) {
+		            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "E");    
+		        } else {
+		        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "W");
+		        }
+		        
+		        if(exif.getLatLong(output) == true){
+		        	Marker marker = map.addMarker(new MarkerOptions().position(new LatLng(output[0],output[1])));
+		        }
+		        
+			
+		} catch (IOException e) {
+			
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    }
+    
+    	public void findVancouver(View view){
+    	Marker vMarker = map.addMarker(new MarkerOptions().position(LOCATION_VANCOUVER));
+//    	LatLngBounds.Builder b = new LatLngBounds.Builder();
+//    	b.include(LOCATION_VANCOUVER);
+//    	LatLngBounds bounds = b.build();
+    	CameraUpdate update = CameraUpdateFactory.newLatLng(LOCATION_VANCOUVER);
+//    	CameraUpdate update = CameraUpdateFactory.newLatLngBounds(bounds, 100, 100 , 0);
+    	map.animateCamera(update);
+
+    	}
+    	
+        @Override
+        public boolean onCreateOptionsMenu(Menu menu) {
+            // Inflate the menu; this adds items to the action bar if it is present.
+            getMenuInflater().inflate(R.menu.main, menu);
+            return true;
+        }
+        
+        
+    class myLocationListener implements LocationListener{
+
+		@Override
+		public void onLocationChanged(Location arg0) {
+			// TODO Auto-generated method stub
+			if(arg0 != null){
+				double lat = arg0.getLatitude();
+				double lng = arg0.getLongitude();
+				
+				textLat.setText(Double.toString(lat));
+				textLong.setText(Double.toString(lng));
+			}
+		}
+
+		@Override
+		public void onProviderDisabled(String arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onProviderEnabled(String arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
+			// TODO Auto-generated method stub
+			
+		}
+    	
+    }
+
+	
+    
+    
+}
+
+

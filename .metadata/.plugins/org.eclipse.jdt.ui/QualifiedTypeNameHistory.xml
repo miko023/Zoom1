@@ -11,4 +11,10 @@
 <fullyQualifiedTypeName name="com.google.android.gms.maps.CameraUpdate"/>
 <fullyQualifiedTypeName name="com.google.android.gms.maps.model.Marker"/>
 <fullyQualifiedTypeName name="com.google.android.gms.maps.model.MarkerOptions"/>
+<fullyQualifiedTypeName name="com.google.android.gms.maps.model.LatLngBounds.Builder"/>
+<fullyQualifiedTypeName name="com.google.android.gms.maps.model.LatLngBounds"/>
+<fullyQualifiedTypeName name="android.location.LocationManager"/>
+<fullyQualifiedTypeName name="android.content.Context"/>
+<fullyQualifiedTypeName name="android.location.LocationListener"/>
+<fullyQualifiedTypeName name="android.location.Location"/>
 </qualifiedTypeNameHistroy>
